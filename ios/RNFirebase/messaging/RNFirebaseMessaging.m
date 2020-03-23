@@ -261,6 +261,20 @@ RCT_EXPORT_METHOD(jsInitialised:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
     }
 }
 
+RCT_EXPORT_METHOD(complete:(NSString*)handlerKey fetchResult:(UIBackgroundFetchResult)fetchResult) {
+    NSLog(@"ab342758thfbsad inside complete handlerkey %@", handlerKey);
+    NSLog(@"ab342758thfbsad inside complete fetchresult %lu", fetchResult);
+    if (handlerKey != nil) {
+        void (^fetchCompletionHandler)(UIBackgroundFetchResult) = fetchCompletionHandlers[handlerKey];
+            NSLog(@"ab342758thfbsad inside complete fetched complete");
+        if (fetchCompletionHandler != nil) {
+            fetchCompletionHandlers[handlerKey] = nil;
+            fetchCompletionHandler(fetchResult);
+            NSLog(@"ab342758thfbsad inside complete performed complete");
+        }
+    }
+}
+
 // ** Start internals **
 
 // Because of the time delay between the app starting and the bridge being initialised

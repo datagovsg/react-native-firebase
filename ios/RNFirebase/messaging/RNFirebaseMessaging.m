@@ -14,7 +14,9 @@
 @import UserNotifications;
 #endif
 
-@implementation RNFirebaseMessaging
+@implementation RNFirebaseMessaging {
+    NSMutableDictionary<NSString *, void (^)(UIBackgroundFetchResult)> *fetchCompletionHandlers;
+}
 
 static RNFirebaseMessaging *theRNFirebaseMessaging = nil;
 static bool jsReady = FALSE;
@@ -45,6 +47,7 @@ RCT_EXPORT_MODULE()
 
     // Set static instance for use from AppDelegate
     theRNFirebaseMessaging = self;
+    fetchCompletionHandlers = [[NSMutableDictionary alloc] init];
 }
 
 // *******************************************************
@@ -66,8 +69,12 @@ RCT_EXPORT_MODULE()
 }
 
 // Listen for FCM data messages that arrive as a remote notification
-- (void)didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo {
+- (void)didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     NSDictionary *message = [self parseUserInfo:userInfo];
+    NSLog(@"ab342758thfbsad called completion handler inside messaging");
+    NSString *handlerKey = userInfo[@"gcm.message_id"];
+    NSLog(@"ab342758thfbsad handler key %@", handlerKey);
+    fetchCompletionHandlers[handlerKey] = completionHandler;
     [self sendJSEvent:self name:MESSAGING_MESSAGE_RECEIVED body:message];
 }
 

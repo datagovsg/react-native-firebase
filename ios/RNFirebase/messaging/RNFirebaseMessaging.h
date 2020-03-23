@@ -15,7 +15,7 @@
 @property _Nullable RCTPromiseResolveBlock permissionResolver;
 
 #if !TARGET_OS_TV
-- (void)didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo;
+- (void)didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo fetchCompletionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
 - (void)didRegisterUserNotificationSettings:(nonnull UIUserNotificationSettings *)notificationSettings;
 #endif
 

@@ -68,12 +68,11 @@ RCT_EXPORT_MODULE()
     _permissionResolver = nil;
 }
 
-// Listen for FCM data messages that arrive as a remote notification
+// Listen for FCM data messages that arrive as a remote notification with a completion handler
+// Save the completion handler under the gcm.message_id key
 - (void)didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     NSDictionary *message = [self parseUserInfo:userInfo];
-    NSLog(@"ab342758thfbsad called completion handler inside messaging");
     NSString *handlerKey = userInfo[@"gcm.message_id"];
-    NSLog(@"ab342758thfbsad handler key %@", handlerKey);
     fetchCompletionHandlers[handlerKey] = completionHandler;
     [self sendJSEvent:self name:MESSAGING_MESSAGE_RECEIVED body:message];
 }
@@ -261,18 +260,26 @@ RCT_EXPORT_METHOD(jsInitialised:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
     }
 }
 
-RCT_EXPORT_METHOD(complete:(NSString*)handlerKey fetchResult:(UIBackgroundFetchResult)fetchResult) {
-    NSLog(@"ab342758thfbsad inside complete handlerkey %@", handlerKey);
-    NSLog(@"ab342758thfbsad inside complete fetchresult %lu", fetchResult);
+// Call the completion handler when provided with a handler key,
+// which is the gcm.message_id
+RCT_EXPORT_METHOD(complete:(NSString*)handlerKey
+               fetchResult:(UIBackgroundFetchResult)fetchResult
+                   resolve:(RCTPromiseResolveBlock) resolve
+                    reject:(RCTPromiseRejectBlock) reject) {
+    void (^fetchCompletionHandler)(UIBackgroundFetchResult);
+    // If handlerKey was provided, fetch the completion handler
     if (handlerKey != nil) {
-        void (^fetchCompletionHandler)(UIBackgroundFetchResult) = fetchCompletionHandlers[handlerKey];
-            NSLog(@"ab342758thfbsad inside complete fetched complete");
-        if (fetchCompletionHandler != nil) {
-            fetchCompletionHandlers[handlerKey] = nil;
-            fetchCompletionHandler(fetchResult);
-            NSLog(@"ab342758thfbsad inside complete performed complete");
-        }
+        fetchCompletionHandler = fetchCompletionHandlers[handlerKey];
     }
+    // If completion handler was fetched, use it and unset it, and return
+    if (fetchCompletionHandler != nil) {
+        fetchCompletionHandlers[handlerKey] = nil;
+        fetchCompletionHandler(fetchResult);
+        resolve(@YES);
+        return;
+    }
+    resolve(@NO);
+    return;
 }
 
 // ** Start internals **

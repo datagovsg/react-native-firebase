@@ -22,4 +22,12 @@ export default class IOSMessaging {
     }
     return getNativeModule(this._messaging).registerForRemoteNotifications();
   }
+
+  complete(handlerKey, fetchResult): Promise<boolean | null> {
+    if (!isIOS) {
+      return null;
+    }
+
+    return getNativeModule(this._messaging).complete(handlerKey, fetchResult);
+  }
 }

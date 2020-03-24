@@ -121,14 +121,8 @@ RCT_EXPORT_METHOD(complete:(NSString*)handlerKey fetchResult:(UIBackgroundFetchR
               fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     // FCM Data messages come through here if they specify content-available=true
     // Pass them over to the RNFirebaseMessaging handler instead
-    NSLog(@"ab342758thfbsad inside didReceiveRemoteNotification");
     if (userInfo[@"aps"] && ((NSDictionary*)userInfo[@"aps"]).count == 1 && userInfo[@"aps"][@"content-available"]) {
         [[RNFirebaseMessaging instance] didReceiveRemoteNotification:userInfo fetchCompletionHandler: completionHandler];
-        NSLog(@"ab342758thfbsad called completion handler");
-        for(NSString *key in userInfo) {
-            NSLog(@"ab342758thfbsad key : %@",key);
-            NSLog(@"ab342758thfbsad%@", userInfo[key]);
-        }
         return;
     }
 
